@@ -1,6 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from pydantic import BaseModel
-from typing import Optional
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
@@ -15,10 +15,7 @@ class PodService:
 
 pod_service = PodService()
 
-@app.post("/api/pods/assign")
+@app.post("/api/pods/assign", response_class=JSONResponse)
 async def assign_employee_to_pod(assign_request: AssignEmployeeRequest):
-    try:
-        result = await pod_service.assign_employee(assign_request.employee_id, assign_request.pod_id)
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    result = await pod_service.assign_employee(assign_request.employee_id, assign_request.pod_id)
+    return JSONResponse(content=result, status_code=200)

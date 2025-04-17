@@ -40,7 +40,10 @@ def run_pytest() -> bool:
 
 def regenerate_code():
     print("🔁 Regenerating code using impl_from_tests.py...")
-    subprocess.run(IMPL_GENERATOR)
+    subprocess.run([sys.executable, "app/services/impl_from_tests.py"])
+
+
+
 
 def main():
     create_virtualenv()

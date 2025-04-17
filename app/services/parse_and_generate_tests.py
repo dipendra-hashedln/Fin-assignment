@@ -23,14 +23,15 @@ def generate_test_code(endpoint: dict) -> str:
 
     Requirements:
     - Use TestClient from fastapi.testclient
-    - Assert response status code
-    - Provide a complete, valid Python file with a test function
-    - No markdown, no explanations, no comments — only pure code
+    - Import the app from 'from app.main import app'
+    - Include a status code assertion
+    - Return only runnable Python code (no markdown, no triple quotes, no text)
     """
 
     response = llm.invoke(prompt)
     raw = response.content if hasattr(response, "content") else str(response)
 
+    # Clean markdown if any
     match = re.search(r"```(?:python)?\s*(.*?)```", raw, re.DOTALL)
     return match.group(1).strip() if match else raw.strip()
 
@@ -58,4 +59,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 

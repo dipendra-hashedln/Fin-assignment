@@ -1,11 +1,9 @@
+from app.main import app
 import pytest
-from fastapi.testclient import TestClient
-from main import app
-
-client = TestClient(app)
+from httpx import AsyncClient
 
 @pytest.mark.asyncio
 async def test_approve_leave():
-    leave_id = 1
-    response = client.patch(f"/api/lms/leaves/{leave_id}/approve")
-    assert response.status_code == 200
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        response = await client.patch("/api/lms/leaves/1/approve", json={"approved": True})
+        assert response.status_code == 200

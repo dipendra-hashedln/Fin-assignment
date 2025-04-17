@@ -1,6 +1,6 @@
-from fastapi import FastAPI, status
+from fastapi import FastAPI
 from pydantic import BaseModel
-from typing import Optional
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
@@ -9,16 +9,15 @@ class LeaveRequest(BaseModel):
     leave_type: str
     start_date: str
     end_date: str
-    reason: str
 
 class LeaveService:
-    async def apply_leave(self, leave_request: LeaveRequest) -> None:
+    async def apply_leave(self, leave_request: LeaveRequest):
         # dummy implementation, replace with actual logic
-        pass
+        return {"message": "Leave applied successfully"}
 
 leave_service = LeaveService()
 
-@app.post("/api/lms/leaves/apply", status_code=status.HTTP_201_CREATED)
+@app.post("/api/lms/leaves/apply", status_code=201)
 async def apply_leave(leave_request: LeaveRequest):
     await leave_service.apply_leave(leave_request)
-    return {"message": "Leave applied successfully"}
+    return JSONResponse(content={"message": "Leave applied successfully"}, status_code=201)

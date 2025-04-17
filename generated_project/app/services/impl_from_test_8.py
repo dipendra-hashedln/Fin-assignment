@@ -1,23 +1,24 @@
 from fastapi import FastAPI, Depends
 from pydantic import BaseModel
-from fastapi.responses import JSONResponse
+from typing import Optional
 
 app = FastAPI()
 
-class LoginData(BaseModel):
+class LoginRequest(BaseModel):
     username: str
     password: str
 
+class LoginResponse(BaseModel):
+    message: str
+
 class AuthService:
-    def authenticate(self, username: str, password: str):
-        # dummy implementation, always returns True
-        return True
+    async def login(self, username: str, password: str) -> str:
+        # dummy implementation, replace with actual login logic
+        return "Logged in successfully"
 
 auth_service = AuthService()
 
 @app.post("/api/auth/login")
-def login_user(data: LoginData):
-    if auth_service.authenticate(data.username, data.password):
-        return JSONResponse(status_code=200, content={"message": "Logged in successfully"})
-    else:
-        return JSONResponse(status_code=401, content={"message": "Invalid credentials"})
+async def login(login_request: LoginRequest, service: AuthService = Depends()):
+    message = await service.login(login_request.username, login_request.password)
+    return LoginResponse(message=message)

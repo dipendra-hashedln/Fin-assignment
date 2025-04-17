@@ -1,9 +1,9 @@
+from app.main import app
 import pytest
-from fastapi.testclient import TestClient
-from main import app
+from httpx import AsyncClient
 
-client = TestClient(app)
-
-def test_get_pod_details():
-    response = client.get("/api/pods/123/details")
-    assert response.status_code == 200
+@pytest.mark.asyncio
+async def test_get_pod_details():
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        response = await client.get("/api/pods/123/details")
+        assert response.status_code == 200

@@ -17,7 +17,7 @@ class PodService:
 
 pod_service = PodService()
 
-@app.post("/api/pods/{pod_id}/recommend")
-async def recommend_employee(pod_id: int, employee: Employee):
-    recommended_employees = await pod_service.recommend_employee(pod_id, employee.id)
-    return RecommendationResponse(recommended_employees=recommended_employees)
+@app.post("/api/pods/{pod_id}/recommend", response_model=RecommendationResponse)
+async def recommend_employee(pod_id: int, employee_id: int):
+    recommended_employees = await pod_service.recommend_employee(pod_id, employee_id)
+    return {"recommended_employees": recommended_employees}

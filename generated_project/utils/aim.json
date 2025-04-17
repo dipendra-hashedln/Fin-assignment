@@ -104,13 +104,12 @@
     ]
   },
   "business_rules": [
-    "A user can apply for leave with a specific category.",
-    "A manager can approve or reject a leave request with comments.",
+    "A user can apply for leave with a valid reason and dates.",
+    "A manager can approve or reject a leave request with a comment.",
     "A user can view their granted and pending leave requests.",
     "A manager can access reports of team leave history.",
     "A manager can assign employees to specific pods.",
-    "An employee can view their assigned pod.",
-    "An employee can recommend colleagues for inclusion in a pod."
+    "An employee can view their assigned pod and recommend colleagues for inclusion."
   ],
   "auth_requirements": {
     "roles": [
@@ -118,17 +117,19 @@
       "manager"
     ],
     "login_mechanisms": [
-      "email_password"
+      "email",
+      "password"
     ],
     "rbac": {
       "manager": [
-        "lms",
-        "pods",
-        "dashboard"
+        "approve_leave",
+        "view_team_leave_history",
+        "assign_employees_to_pods"
       ],
       "general_user": [
-        "lms",
-        "pods"
+        "apply_for_leave",
+        "view_leave_status",
+        "view_assigned_pod"
       ]
     }
   }
