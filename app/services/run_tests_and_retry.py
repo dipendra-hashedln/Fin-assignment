@@ -9,6 +9,7 @@ VENV_DIR = os.path.join(PROJECT_DIR, "venv")
 PYTHON_EXEC = os.path.join(VENV_DIR, "Scripts", "python.exe") if os.name == "nt" else os.path.join(VENV_DIR, "bin", "python")
 REQUIREMENTS_PATH = os.path.join(PROJECT_DIR, "requirements.txt")
 TESTS_DIR = os.path.join(PROJECT_DIR, "tests")
+IMPL_GENERATOR = ["python", "app/services/impl_from_tests.py"]
 
 def create_virtualenv():
     print("🐍 Creating virtualenv...")
@@ -28,16 +29,41 @@ def run_pytest() -> bool:
     result = subprocess.run([PYTHON_EXEC, "-m", "pytest", TESTS_DIR], capture_output=True, text=True)
 
     print(result.stdout)
+    print(result.stderr)
+
     if result.returncode == 0:
         print("✅ All tests passed!")
         return True
     else:
-        print("❌ Some tests failed.")
+        print("❌ Tests failed with errors above.")
         return False
 
-if __name__ == "__main__":
+def regenerate_code():
+    print("🔁 Regenerating code using impl_from_tests.py...")
+    subprocess.run(IMPL_GENERATOR)
+
+def main():
     create_virtualenv()
     install_requirements()
-    run_pytest()
+
+    max_retries = 3
+    attempt = 0
+
+    while attempt < max_retries:
+        passed = run_pytest()
+        if passed:
+            break
+        attempt += 1
+        print(f"🔄 Attempt {attempt} failed. Retrying code generation...")
+        regenerate_code()
+        time.sleep(2)
+
+    if attempt == max_retries:
+        print("❌ All retries exhausted. Some tests are still failing.")
+    else:
+        print(f"🎉 Tests passed after {attempt + 1} total attempts.")
+
+if __name__ == "__main__":
+    main()
 
 

@@ -20,7 +20,7 @@ def create_project_structure(project_root="generated_project"):
         f"{project_root}/app/database.py": "",
         f"{project_root}/app/main.py": "",
         f"{project_root}/Dockerfile": "",
-        f"{project_root}/requirements.txt": "",
+        f"{project_root}/requirements.txt": "fastapi\nhttpx\npydantic\npytest\n",
         f"{project_root}/.env": "",
         f"{project_root}/README.md": ""
     }
