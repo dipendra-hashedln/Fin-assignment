@@ -17,7 +17,7 @@ class OrchestratorState(TypedDict):
     tests_passed: bool
     zip_path: str
 
-# 🧠 Step 1: Analyze SRS → aim.json + generate models, routes, main.py
+# 🧠 Step 1: Analyze SRS → aim.json
 def srs_analysis_node(state: OrchestratorState):
     text = extract_text_from_docx(state["srs_path"])
     analysis_result = analyze_srs_content(text)
@@ -27,62 +27,53 @@ def srs_analysis_node(state: OrchestratorState):
     with open(aim_path, "w", encoding="utf-8") as f:
         json.dump(analysis_result, f, indent=4)
 
-    # Create folders
+    # Auto-create models and routes
     models_dir = os.path.join("generated_project", "app", "models")
     routes_dir = os.path.join("generated_project", "app", "routes")
     os.makedirs(models_dir, exist_ok=True)
     os.makedirs(routes_dir, exist_ok=True)
 
-    # --- Models ---
-    models_code = ""
-    tables = analysis_result.get("database_schema", {}).get("tables", [])
-    for table in tables:
+    # Generate models from DB schema
+    model_code = ""
+    for table in analysis_result.get("database_schema", {}).get("tables", []):
         class_name = table["name"].title().replace("_", "")
-        models_code += f"class {class_name}(BaseModel):\n"
+        model_code += f"class {class_name}(BaseModel):\n"
         for col in table["columns"]:
-            models_code += f"    {col}: str\n"
-        models_code += "\n\n"
-
+            model_code += f"    {col}: str\n"
+        model_code += "\n"
     with open(os.path.join(models_dir, "models.py"), "w") as f:
-        f.write("from pydantic import BaseModel\n\n")
-        f.write(models_code.strip())
+        f.write("from pydantic import BaseModel\n\n" + model_code.strip())
 
-    # --- Routes ---
-    for endpoint in analysis_result.get("api_endpoints", []):
-        path = endpoint["path"].strip("/").replace("/", "_").replace("{", "").replace("}", "")
-        route_code = f"""
-from fastapi import APIRouter
+    # Generate route stubs
+    for ep in analysis_result.get("api_endpoints", []):
+        path = ep["path"].strip("/").replace("/", "_").replace("{", "").replace("}", "")
+        route_file = os.path.join(routes_dir, f"{path}.py")
+        with open(route_file, "w") as f:
+            f.write(f"""from fastapi import APIRouter
 
 router = APIRouter()
 
-@router.{endpoint['method'].lower()}("{endpoint['path']}")
+@router.{ep["method"].lower()}("{ep["path"]}")
 async def {path}():
-    return {{"message": "This is a stub for {endpoint['description']}"}}
-"""
-        with open(os.path.join(routes_dir, f"{path}.py"), "w") as f:
-            f.write(route_code.strip())
+    return {{"message": "This is a stub for {ep["description"]}"}}""")
 
-    # --- main.py ---
-    main_py_path = os.path.join("generated_project", "main.py")
+    # Generate main.py to register routes
     route_files = os.listdir(routes_dir)
-
     import_lines = ""
     include_lines = ""
     for file in route_files:
         if file.endswith(".py"):
-            module_name = file[:-3]
-            import_lines += f"from app.routes import {module_name}\n"
-            include_lines += f"app.include_router({module_name}.router)\n"
+            mod = file[:-3]
+            import_lines += f"from app.routes import {mod}\n"
+            include_lines += f"app.include_router({mod}.router)\n"
 
-    main_py_content = f"""from fastapi import FastAPI
+    main_code = f"""from fastapi import FastAPI
 {import_lines}
-
 app = FastAPI()
-
 {include_lines}
 """
-    with open(main_py_path, "w", encoding="utf-8") as f:
-        f.write(main_py_content.strip())
+    with open("generated_project/main.py", "w") as f:
+        f.write(main_code.strip())
 
     return {"analysis": analysis_result}
 
@@ -101,8 +92,19 @@ def testing_node(state: OrchestratorState):
     passed = run_tests()
     return {"tests_passed": passed}
 
-# 📦 Step 5: Zip project folder
+# 📦 Step 5: Zip and write requirements.txt
 def packaging_node(state: OrchestratorState):
+    # Add full requirements.txt
+    requirements = [
+        "fastapi",
+        "pydantic",
+        "pytest",
+        "uvicorn",
+        "python-dotenv"
+    ]
+    with open("generated_project/requirements.txt", "w") as f:
+        f.write("\n".join(requirements))
+
     zip_path = zip_project("generated_project")
     return {"zip_path": zip_path}
 
@@ -127,5 +129,6 @@ def run_full_generation(srs_path: str) -> str:
     name = os.path.splitext(os.path.basename(srs_path))[0]
     state = compiled_graph.invoke({"srs_path": srs_path, "project_name": name})
     return state["zip_path"]
+
 
 

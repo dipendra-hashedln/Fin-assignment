@@ -9,9 +9,7 @@ from app.routes import api_pods_assign
 from app.routes import api_pods_pod_id_details
 from app.routes import api_pods_pod_id_recommend
 
-
 app = FastAPI()
-
 app.include_router(api_auth_login.router)
 app.include_router(api_auth_user.router)
 app.include_router(api_dashboard_tiles.router)

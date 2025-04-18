@@ -7,18 +7,15 @@ class Leaves(BaseModel):
     reason: str
     status: str
 
-
 class Pods(BaseModel):
     id: str
     name: str
-
 
 class PodMembers(BaseModel):
     id: str
     pod_id: str
     user_id: str
     role: str
-
 
 class Users(BaseModel):
     id: str
