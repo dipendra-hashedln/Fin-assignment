@@ -1,8 +1,6 @@
 from fastapi import APIRouter
 
-
 router = APIRouter()
-
 
 @router.get("/api/lms/leaves/status")
 async def api_lms_leaves_status():
