@@ -47,85 +47,59 @@
         }
     ],
     "database_schema": {
-        "tables": [
-            {
-                "name": "leaves",
-                "columns": [
-                    "id",
-                    "start_date",
-                    "end_date",
-                    "reason",
-                    "status"
-                ]
-            },
-            {
-                "name": "pods",
-                "columns": [
-                    "id",
-                    "name"
-                ]
-            },
-            {
-                "name": "pod_members",
-                "columns": [
-                    "id",
-                    "pod_id",
-                    "user_id",
-                    "role"
-                ]
-            },
-            {
-                "name": "users",
-                "columns": [
-                    "id",
-                    "email",
-                    "password",
-                    "role"
-                ]
-            }
-        ],
-        "relationships": [
-            {
-                "table1": "leaves",
-                "table2": "users",
-                "relationship": "one-to-one"
-            },
-            {
-                "table1": "pods",
-                "table2": "pod_members",
-                "relationship": "one-to-many"
-            },
-            {
-                "table1": "pod_members",
-                "table2": "users",
-                "relationship": "many-to-one"
-            }
-        ]
+        "leaves": {
+            "columns": [
+                "id",
+                "start_date",
+                "end_date",
+                "reason",
+                "status"
+            ],
+            "relationships": [
+                "employee_id",
+                "manager_id"
+            ]
+        },
+        "pods": {
+            "columns": [
+                "id",
+                "name"
+            ],
+            "relationships": [
+                "employees"
+            ]
+        },
+        "employees": {
+            "columns": [
+                "id",
+                "name",
+                "role"
+            ],
+            "relationships": [
+                "leaves",
+                "pods"
+            ]
+        }
     },
     "business_rules": [
-        "A user can apply for leave with a specific category.",
-        "A manager can approve or reject a leave request with comments.",
-        "A user can view their granted and pending leave requests.",
-        "A manager can access reports of team leave history.",
-        "A manager can assign employees to specific pods.",
-        "An employee can view their assigned pod.",
-        "An employee can recommend colleagues for inclusion in a pod."
+        "Employees can submit leave requests with category selection.",
+        "Managers can approve or reject leave requests with comments.",
+        "Employees can view granted and pending leave requests.",
+        "Managers can access reports of team leave history.",
+        "Employees can view assigned pod.",
+        "Employees can recommend colleagues for inclusion in pods."
     ],
     "auth_requirements": {
         "roles": [
             "general_user",
             "manager"
         ],
-        "login_mechanisms": [
-            "email and password"
+        "authentication_mechanisms": [
+            "Bearer token"
         ],
-        "rbac": {
-            "manager": [
-                "access to manager and employee related APIs"
-            ],
-            "general_user": [
-                "access to user specific APIs"
-            ]
+        "details": {
+            "RBAC": "Ensure Role-Based Access Control",
+            "secure_authentication": "Implement secure authentication and authorization"
         }
     }
 }

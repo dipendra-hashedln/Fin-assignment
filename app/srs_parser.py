@@ -9,15 +9,7 @@ llm = ChatGroq(api_key=os.getenv("GROQ_API_KEY"), temperature=0, model_name="lla
 
 def analyze_srs_content(text: str) -> dict:
     prompt = f"""
-    Analyze the following Software Requirements Specification and return structured JSON with:
-
-    - api_endpoints: list of endpoints with method, path, description
-    - database_schema: tables, columns, relationships
-    - business_rules: textual rules and logic to be enforced
-    - auth_requirements: roles, login mechanisms, etc.
-
-    Return only valid JSON. Do not add markdown, comments, or explanations.
-    Ensure the response is parsable using json.loads() in Python.
+    Parse the provided Software Requirements Specification and generate structured JSON containing: - api_endpoints: array of endpoints including method, path, and description - database_schema: tables with their columns and relationships - business_rules: textual rules and logic to enforce - auth_requirements: roles, authentication mechanisms, and related details. Output only valid JSON, ensuring it is parsable by Python's json.loads(). Exclude markdown, comments, or explanations.
 
     SRS:
     {text}
@@ -54,7 +46,7 @@ def analyze_srs(text_path: str, project_root: str) -> str:
     with open(aim_path, "w", encoding="utf-8") as f:
         json.dump(parsed_json, f, indent=2)
 
-    print("💾 aim.json saved at:", aim_path)
+    print("aim.json saved at:", aim_path)
     return aim_path
 
 
