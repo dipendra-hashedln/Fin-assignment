@@ -53,9 +53,9 @@ def main():
             f.write(test_code)
 
         test_files.append(filename)
-        print(f"✅ Generated: {filename}")
+        print(f"Generated: {filename}")
 
-    print(f"\n🎯 {len(test_files)} test files created in {output_dir}/")
+    print(f"{len(test_files)} test files created in {output_dir}/")
 
 if __name__ == "__main__":
     main()

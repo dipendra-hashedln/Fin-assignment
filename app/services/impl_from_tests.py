@@ -60,7 +60,7 @@ def main():
         with open(test_file, "r", encoding="utf-8") as f:
             test_code = f.read()
 
-        print(f"🚧 Generating code from: {os.path.basename(test_file)}")
+        print(f"Generating code from: {os.path.basename(test_file)}")
 
         raw_code = generate_code_for_test(test_code, aim)
         clean = clean_code(raw_code)
@@ -71,9 +71,9 @@ def main():
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(clean)
 
-        print(f"✅ Saved: {filename}")
+        print(f"Saved: {filename}")
 
-    print("\n🎯 Implementation generation complete.")
+    print("Implementation generation complete.")
 
 if __name__ == "__main__":
     main()

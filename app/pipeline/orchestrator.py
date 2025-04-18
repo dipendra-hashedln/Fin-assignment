@@ -17,7 +17,7 @@ class OrchestratorState(TypedDict):
     tests_passed: bool
     zip_path: str
 
-# 🧠 Step 1: Analyze SRS → aim.json
+# Step 1: Analyze SRS → aim.json
 def srs_analysis_node(state: OrchestratorState):
     text = extract_text_from_docx(state["srs_path"])
     analysis_result = analyze_srs_content(text)
@@ -77,22 +77,22 @@ app = FastAPI()
 
     return {"analysis": analysis_result}
 
-# 📁 Step 2: Generate unit tests
+
 def test_generation_node(state: OrchestratorState):
     generate_tests()
     return {}
 
-# ⚙️ Step 3: Generate implementation from tests
+# Step 3: Generate implementation from tests
 def implementation_node(state: OrchestratorState):
     generate_implementations()
     return {}
 
-# 🧪 Step 4: Run + Retry tests
+# Step 4: Run + Retry tests
 def testing_node(state: OrchestratorState):
     passed = run_tests()
     return {"tests_passed": passed}
 
-# 📦 Step 5: Zip and write requirements.txt
+# Step 5: Zip and write requirements.txt
 def packaging_node(state: OrchestratorState):
     # Add full requirements.txt
     requirements = [
@@ -108,7 +108,7 @@ def packaging_node(state: OrchestratorState):
     zip_path = zip_project("generated_project")
     return {"zip_path": zip_path}
 
-# 🚀 Build LangGraph
+# Build LangGraph
 graph = StateGraph(OrchestratorState)
 graph.add_node("analyze", srs_analysis_node)
 graph.add_node("generate_tests", test_generation_node)
