@@ -1,40 +1,24 @@
-
-from fastapi import FastAPI, UploadFile, File
-from app.srs_parser import analyze_srs
-from app.project_generator import create_project_structure
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.responses import FileResponse
+from app.pipeline.orchestrator import run_full_generation
 import os
-import shutil
-from docx import Document
 
 app = FastAPI()
 
 @app.post("/upload-srs")
 async def upload_srs(file: UploadFile = File(...)):
     if not file.filename.endswith(".docx"):
-        return {"error": "Only .docx files are supported."}
+        raise HTTPException(400, "Only .docx files are supported.")
+    
+    os.makedirs("temp", exist_ok=True)
+    file_path = f"temp/{file.filename}"
+    with open(file_path, "wb") as f:
+        f.write(await file.read())
 
-    os.makedirs("out", exist_ok=True)
-    docx_path = os.path.join("out", file.filename)
-    with open(docx_path, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+    try:
+        zip_path = run_full_generation(file_path)
+    except Exception as e:
+        raise HTTPException(500, f"Generation failed: {str(e)}")
 
-    # Extract raw text from .docx
-    doc = Document(docx_path)
-    raw_text = "\n".join([para.text for para in doc.paragraphs])
-    text_path = os.path.join("out", "srs_text.txt")
-    with open(text_path, "w", encoding="utf-8") as f:
-        f.write(raw_text)
-
-    # Step 1: Scaffold project folders
-    project_path = "generated_project"
-    create_project_structure(project_path)
-
-    # Step 2: Analyze SRS and write aim.json
-    aim_path = analyze_srs(text_path, project_path)
-
-    return {
-        "message": "Project generated successfully",
-        "aim_json_path": aim_path,
-        "project_folder": project_path
-    }
+    return FileResponse(zip_path, filename=os.path.basename(zip_path))
 

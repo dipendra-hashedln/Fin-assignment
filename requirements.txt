@@ -7,5 +7,12 @@ python-dotenv
 alembic
 pytest
 
+langgraph
+
+httpx
+
+
+
+
 
 

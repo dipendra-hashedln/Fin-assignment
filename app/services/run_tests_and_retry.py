@@ -45,7 +45,7 @@ def regenerate_code():
 
 
 
-def main():
+def main() -> bool:
     create_virtualenv()
     install_requirements()
 
@@ -63,10 +63,12 @@ def main():
 
     if attempt == max_retries:
         print("❌ All retries exhausted. Some tests are still failing.")
+        return False   # ✅ Instead of sys.exit(1)
     else:
         print(f"🎉 Tests passed after {attempt + 1} total attempts.")
+        return True     # ✅ explicitly return success
 
-if __name__ == "__main__":
-    main()
+
+
 
 
